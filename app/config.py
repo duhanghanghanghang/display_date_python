@@ -18,6 +18,8 @@ class Settings:
             minutes=int(os.getenv("JWT_EXPIRES_MINUTES", "1440"))
         )
         self.invite_code_length: int = int(os.getenv("INVITE_CODE_LENGTH", "8"))
+        self.wechat_appid: str | None = os.getenv("WECHAT_APPID")
+        self.wechat_secret: str | None = os.getenv("WECHAT_SECRET")
 
 
 settings = Settings()

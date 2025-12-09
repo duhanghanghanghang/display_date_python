@@ -1,0 +1,10 @@
+# Virtual environment
+.venv/
+
+# Local environment overrides
+.envJ
+
+# Python cache
+__pycache__/
+*.py[cod]
+

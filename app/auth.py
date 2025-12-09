@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
+from typing import Any, Dict
 
+import requests
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
@@ -37,13 +39,47 @@ def get_current_openid(
 
 
 def fake_wechat_code2session(code: str) -> str:
-    """
-    简化版 code2Session。真实环境下需调用微信接口。
-    这里直接返回 code 作为 openid，便于前后端联调。
-    """
+    """调用微信官方 code2Session 获取 openid。"""
     if not code:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="code is required"
         )
-    return code
+    if not settings.wechat_appid or not settings.wechat_secret:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="WeChat appid/secret not configured",
+        )
+
+    params = {
+        "appid": settings.wechat_appid,
+        "secret": settings.wechat_secret,
+        "js_code": code,
+        "grant_type": "authorization_code",
+    }
+    try:
+        resp = requests.get(
+            "https://api.weixin.qq.com/sns/jscode2session", params=params, timeout=5
+        )
+        resp.raise_for_status()
+        data: Dict[str, Any] = resp.json()
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Failed to call WeChat code2session",
+        )
+
+    errcode = data.get("errcode")
+    if errcode:
+        errmsg = data.get("errmsg", "unknown error")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"WeChat error: {errmsg}",
+        )
+
+    openid = data.get("openid")
+    if not openid:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY, detail="WeChat openid missing"
+        )
+    return openid
 

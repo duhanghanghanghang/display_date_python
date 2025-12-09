@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from .database import Base, engine
@@ -21,7 +22,7 @@ app.include_router(items.router)
 app.include_router(teams.router)
 
 
-@app.get("/")
-def read_root():
-    return {"message": "ok"}
+@app.get("/", response_class=PlainTextResponse)
+def read_root() -> str:
+    return "番茄我爱你"
 
