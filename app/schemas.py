@@ -42,8 +42,8 @@ class ItemOut(ItemBase):
     deleted: bool
     deleted_at: Optional[datetime]
     deleted_by: Optional[str]
-    add_date: Optional[datetime]
-    update_date: Optional[datetime]
+    created_at: Optional[datetime] = Field(default=None, alias="addDate")
+    updated_at: Optional[datetime] = Field(default=None, alias="updateDate")
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
@@ -92,5 +92,36 @@ class RenameTeamRequest(BaseModel):
 
 class RemoveMemberRequest(BaseModel):
     member_openid: str = Field(alias="memberOpenId")
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class UserProfile(BaseModel):
+    openid: str
+    nickname: Optional[str] = None
+    phone_number: Optional[str] = Field(default=None, alias="phoneNumber")
+    avatar_url: Optional[str] = Field(default=None, alias="avatarUrl")
+    reminder_days: int = Field(default=3, alias="reminderDays")
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+
+class UpdateUserProfile(BaseModel):
+    nickname: Optional[str] = None
+    phone_number: Optional[str] = Field(default=None, alias="phoneNumber")
+    avatar_url: Optional[str] = Field(default=None, alias="avatarUrl")
+    reminder_days: Optional[int] = Field(default=None, alias="reminderDays")
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class SubscribeSendRequest(BaseModel):
+    """发送订阅消息请求体。"""
+
+    template_id: str = Field(alias="templateId")
+    data: dict
+    page: Optional[str] = None  # 小程序跳转页面，如不需要可不传
+    state: Optional[str] = Field(
+        default="formal", alias="miniprogramState"
+    )  # formal / trial / develop
+    lang: Optional[str] = "zh_CN"
+    openid: Optional[str] = None  # 如不传则使用当前登录态的 openid
     model_config = ConfigDict(populate_by_name=True)
 

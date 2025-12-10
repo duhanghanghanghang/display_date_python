@@ -47,6 +47,19 @@ def ensure_team_owner(team: Team, openid: str) -> None:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Owner only")
 
 
+def _cleanup_user_teams(db: Session, openid: str, keep_team_id: str | None = None) -> None:
+    """确保用户只在一个团队中：删除自己创建的团队，退出其他团队，保留 keep_team_id。"""
+    all_teams = db.scalars(select(Team)).all()
+    for t in all_teams:
+        if t.id == keep_team_id:
+            continue
+        if t.owner_openid == openid:
+            db.delete(t)
+        elif openid in t.member_openids:
+            t.member_openids = [m for m in t.member_openids if m != openid]
+    db.commit()
+
+
 @router.get("", response_model=TeamsResponse)
 def list_teams(
     type: Literal["created", "joined"] = Query("created"),
@@ -80,6 +93,9 @@ def create_team(
     db: Session = Depends(get_db),
     openid: str = Depends(get_current_openid),
 ):
+    # 用户只能拥有/加入一个团队：先清理其他团队关系
+    _cleanup_user_teams(db, openid)
+
     invite_code = payload.invite_code or generate_invite_code(settings.invite_code_length)
     team = Team(
         name=payload.name,
@@ -110,6 +126,9 @@ def join_team(
 
     if len(team.member_openids) >= team.quota:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Team quota exceeded")
+
+    # 加入前先清理用户在其他团队的拥有/成员关系，确保只在一个团队中
+    _cleanup_user_teams(db, openid, keep_team_id=team.id)
 
     team.member_openids.append(openid)
     db.commit()

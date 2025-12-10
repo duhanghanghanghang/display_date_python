@@ -7,7 +7,12 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from .config import settings
 
 logger = logging.getLogger("app.database")
-logging.basicConfig(level=logging.INFO)
+# 统一日志格式，带日期时间，便于排查线上问题
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 
 class Base(DeclarativeBase):
@@ -25,6 +30,16 @@ engine = create_engine(
     echo=False,  # 关闭全量 echo，改为自定义精简日志
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, future=True)
+
+
+@event.listens_for(engine, "connect")
+def _set_timezone(dbapi_connection, connection_record) -> None:
+    """确保每个连接使用东八区，避免时间字段滞后。"""
+    cursor = dbapi_connection.cursor()
+    try:
+        cursor.execute("SET time_zone = '+08:00'")
+    finally:
+        cursor.close()
 
 
 @event.listens_for(engine, "after_cursor_execute")

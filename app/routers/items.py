@@ -9,8 +9,24 @@ from ..auth import get_current_openid
 from ..database import get_db
 from ..models import Item, Team
 from ..schemas import ItemCreate, ItemOut, ItemUpdate, ItemsResponse, MessageResponse
+from ..wechat import send_subscribe_message
+from ..config import settings
 
 router = APIRouter(prefix="/items", tags=["items"])
+
+
+def _parse_expire_date(date_str: Optional[str]) -> Optional[datetime]:
+    """严格解析日期：YYYY-MM-DD 或 YYYY-MM-DD HH:MM。"""
+    if not date_str:
+        return None
+    fmts = ["%Y-%m-%d %H:%M", "%Y-%m-%d"]
+    for fmt in fmts:
+        try:
+            dt = datetime.strptime(date_str, fmt)
+            return dt.replace(tzinfo=timezone.utc)
+        except Exception:
+            continue
+    return None
 
 
 def normalize_team_id(team_id: Optional[str]) -> Optional[str]:
@@ -52,7 +68,7 @@ def list_items(
         stmt = (
             select(Item)
             .where(Item.team_id == team_id, Item.deleted.is_(False))
-            .order_by(Item.update_date.desc())
+            .order_by(Item.updated_at.desc())
         )
     else:
         stmt = (
@@ -62,10 +78,58 @@ def list_items(
                 Item.team_id.is_(None),
                 Item.deleted.is_(False),
             )
-            .order_by(Item.update_date.desc())
+            .order_by(Item.updated_at.desc())
         )
     items = db.scalars(stmt).all()
     return ItemsResponse(items=items)
+
+
+@router.post("/notify", response_model=MessageResponse)
+def notify_items(
+    item_ids: list[str],
+    send: bool = True,
+    db: Session = Depends(get_db),
+    openid: str = Depends(get_current_openid),
+):
+    if not item_ids:
+        return MessageResponse(message="no items")
+    items = (
+        db.execute(
+            select(Item).where(
+                Item.id.in_(item_ids),
+                Item.owner_openid == openid,
+                Item.deleted.is_(False),
+            )
+        )
+        .scalars()
+        .all()
+    )
+    if not items:
+        return MessageResponse(message="no items")
+
+    now = datetime.now(timezone.utc)
+    sent = 0
+    for item in items:
+        item.notified_at = now
+        if send and settings.wechat_template_id:
+            expire_dt = _parse_expire_date(item.expire_date)
+            if not expire_dt:
+                continue
+            data = {
+                "thing1": {"value": item.name[:20]},
+                "date3": {"value": expire_dt.strftime("%Y-%m-%d %H:%M")},
+            }
+            send_subscribe_message(
+                openid=openid,
+                template_id=settings.wechat_template_id,
+                data=data,
+                page="pages/index/index",
+                state="formal",
+            )
+            sent += 1
+    db.commit()
+    return MessageResponse(message=f"notified {len(items)}, sent {sent}")
+
 
 
 @router.post("", response_model=ItemOut, status_code=status.HTTP_201_CREATED)
@@ -97,7 +161,7 @@ def create_item(
         existing.deleted = False
         existing.deleted_at = None
         existing.deleted_by = None
-        existing.update_date = now
+        existing.updated_at = now
         item = existing
     else:
         item = Item(
@@ -110,8 +174,8 @@ def create_item(
             barcode=payload.barcode,
             product_image=payload.product_image,
             deleted=False,
-            add_date=now,
-            update_date=now,
+            created_at=now,
+            updated_at=now,
         )
         db.add(item)
 
@@ -137,7 +201,7 @@ def update_item(
         if field == "teamId":
             continue
         setattr(item, field, value)
-    item.update_date = datetime.now(timezone.utc)
+    item.updated_at = datetime.now(timezone.utc)
 
     db.commit()
     db.refresh(item)
@@ -160,7 +224,7 @@ def delete_item(
     item.deleted = True
     item.deleted_at = now
     item.deleted_by = openid
-    item.update_date = now
+    item.updated_at = now
 
     db.commit()
     return MessageResponse()

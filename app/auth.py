@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from typing import Any, Dict
 
+import logging
 import requests
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -9,6 +10,7 @@ from jose import JWTError, jwt
 from .config import settings
 
 bearer_scheme = HTTPBearer()
+logger = logging.getLogger("app.auth")
 
 
 def create_access_token(openid: str) -> str:
@@ -62,7 +64,8 @@ def fake_wechat_code2session(code: str) -> str:
         )
         resp.raise_for_status()
         data: Dict[str, Any] = resp.json()
-    except Exception:
+    except Exception as exc:  # pragma: no cover - 网络异常直接报出
+        logger.warning("code2session request failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="Failed to call WeChat code2session",
@@ -71,6 +74,7 @@ def fake_wechat_code2session(code: str) -> str:
     errcode = data.get("errcode")
     if errcode:
         errmsg = data.get("errmsg", "unknown error")
+        logger.info("code2session error errcode=%s errmsg=%s", errcode, errmsg)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"WeChat error: {errmsg}",
@@ -78,8 +82,10 @@ def fake_wechat_code2session(code: str) -> str:
 
     openid = data.get("openid")
     if not openid:
+        logger.info("code2session missing openid: %s", data)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY, detail="WeChat openid missing"
         )
+    logger.info("code2session ok openid=%s", openid)
     return openid
 

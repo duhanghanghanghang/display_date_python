@@ -1,9 +1,9 @@
 import os
 from datetime import timedelta
 
-from dotenv import load_dotenv
+from .env_loader import load_env
 
-load_dotenv()
+load_env()
 
 
 class Settings:
@@ -20,6 +20,7 @@ class Settings:
         self.invite_code_length: int = int(os.getenv("INVITE_CODE_LENGTH", "8"))
         self.wechat_appid: str | None = os.getenv("WECHAT_APPID")
         self.wechat_secret: str | None = os.getenv("WECHAT_SECRET")
+        self.wechat_template_id: str | None = os.getenv("WECHAT_TEMPLATE_ID")
 
 
 settings = Settings()
