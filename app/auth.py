@@ -1,43 +1,29 @@
-from datetime import datetime, timezone
 from typing import Any, Dict
 
 import logging
 import requests
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import JWTError, jwt
+from fastapi import Header, HTTPException, status
 
 from .config import settings
 
-bearer_scheme = HTTPBearer()
 logger = logging.getLogger("app.auth")
 
 
-def create_access_token(openid: str) -> str:
-    expire_at = datetime.now(timezone.utc) + settings.jwt_expires
-    to_encode = {"sub": openid, "exp": expire_at}
-    return jwt.encode(to_encode, settings.jwt_secret, algorithm=settings.jwt_algorithm)
-
-
 def get_current_openid(
-    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    x_openid: str = Header(None, alias="X-OpenId"),
+    openid: str = Header(None, alias="openid"),
 ) -> str:
-    token = credentials.credentials
-    try:
-        payload = jwt.decode(
-            token, settings.jwt_secret, algorithms=[settings.jwt_algorithm]
-        )
-        openid: str | None = payload.get("sub")
-    except JWTError:
+    """
+    从请求头中获取 openid。
+    支持两种方式：X-OpenId 或 openid
+    """
+    user_openid = x_openid or openid
+    if not user_openid:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing openid in header",
         )
-
-    if not openid:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
-        )
-    return openid
+    return user_openid
 
 
 def fake_wechat_code2session(code: str) -> str:

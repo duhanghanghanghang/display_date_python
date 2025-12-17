@@ -4,8 +4,7 @@ from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class TokenResponse(BaseModel):
-    token: str
+class LoginResponse(BaseModel):
     openid: str
 
 
@@ -24,6 +23,7 @@ class ItemBase(BaseModel):
     note: Optional[str] = None
     barcode: Optional[str] = None
     product_image: Optional[str] = None
+    quantity: Optional[int] = 1
     team_id: Optional[str] = Field(default=None, alias="teamId")
     model_config = ConfigDict(populate_by_name=True)
 
@@ -39,11 +39,13 @@ class ItemUpdate(ItemBase):
 class ItemOut(ItemBase):
     id: str
     owner_openid: str
+    quantity: int = 1
     deleted: bool
     deleted_at: Optional[datetime]
     deleted_by: Optional[str]
     created_at: Optional[datetime] = Field(default=None, alias="addDate")
     updated_at: Optional[datetime] = Field(default=None, alias="updateDate")
+    notified_at: Optional[datetime] = Field(default=None, alias="notifiedAt")
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 

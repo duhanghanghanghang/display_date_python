@@ -8,7 +8,13 @@ from sqlalchemy.orm import Session
 from ..auth import get_current_openid
 from ..database import get_db
 from ..models import Item, Team
-from ..schemas import ItemCreate, ItemOut, ItemUpdate, ItemsResponse, MessageResponse
+from ..schemas import (
+    ItemCreate,
+    ItemOut,
+    ItemUpdate,
+    ItemsResponse,
+    MessageResponse,
+)
 from ..wechat import send_subscribe_message
 from ..config import settings
 
@@ -82,6 +88,19 @@ def list_items(
         )
     items = db.scalars(stmt).all()
     return ItemsResponse(items=items)
+
+
+@router.get("/{item_id}", response_model=ItemOut)
+def get_item(
+    item_id: str,
+    db: Session = Depends(get_db),
+    openid: str = Depends(get_current_openid),
+):
+    item = db.get(Item, item_id)
+    if not item or item.deleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+    ensure_item_permission(db, item, openid)
+    return item
 
 
 @router.post("/notify", response_model=MessageResponse)
@@ -173,6 +192,7 @@ def create_item(
             note=payload.note,
             barcode=payload.barcode,
             product_image=payload.product_image,
+            quantity=payload.quantity if payload.quantity is not None else 1,
             deleted=False,
             created_at=now,
             updated_at=now,
@@ -228,4 +248,19 @@ def delete_item(
 
     db.commit()
     return MessageResponse()
+
+
+@router.patch("/{item_id}/unnotify", response_model=MessageResponse)
+def unnotify_item(
+    item_id: str,
+    db: Session = Depends(get_db),
+    openid: str = Depends(get_current_openid),
+):
+    item = db.get(Item, item_id)
+    if not item or item.deleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+    ensure_item_permission(db, item, openid)
+    item.notified_at = None
+    db.commit()
+    return MessageResponse(message="unnotified")
 

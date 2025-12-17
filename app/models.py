@@ -52,6 +52,7 @@ class Item(TimestampMixin, Base):
     note = Column(String(1024), nullable=True)
     barcode = Column(String(255), nullable=True)
     product_image = Column(String(1024), nullable=True)
+    quantity = Column(Integer, nullable=False, default=1)
 
     deleted = Column(Boolean, default=False, nullable=False)
     deleted_at = Column(DateTime(timezone=True), nullable=True)

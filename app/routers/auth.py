@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from ..auth import create_access_token, fake_wechat_code2session, get_current_openid
+from ..auth import fake_wechat_code2session, get_current_openid
 from ..database import get_db
 from ..models import User
 from ..schemas import (
     LoginRequest,
-    TokenResponse,
+    LoginResponse,
     UpdateUserProfile,
     UserProfile,
 )
@@ -15,11 +15,14 @@ from ..schemas import (
 router = APIRouter(tags=["auth"])
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=LoginResponse)
 def login(payload: LoginRequest):
+    """
+    微信小程序登录，使用 code 换取 openid。
+    客户端需要保存 openid，并在后续请求的 header 中携带（X-OpenId 或 openid）。
+    """
     openid = fake_wechat_code2session(payload.code)
-    token = create_access_token(openid)
-    return TokenResponse(token=token, openid=openid)
+    return LoginResponse(openid=openid)
 
 
 @router.get("/me", response_model=UserProfile)
