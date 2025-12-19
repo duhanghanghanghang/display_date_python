@@ -12,3 +12,7 @@ __pycache__/
 # Logs
 logs/
 *.log*
+
+# Alembic
+alembic/__pycache__/
+alembic/versions/__pycache__/
