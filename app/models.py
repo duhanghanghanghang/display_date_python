@@ -72,3 +72,20 @@ class User(TimestampMixin, Base):
     avatar_url = Column(String(1024), nullable=True)
     reminder_days = Column(Integer, nullable=False, default=3)
 
+
+class Product(TimestampMixin, Base):
+    """商品库表 - 缓存条形码查询结果"""
+    __tablename__ = "products"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    barcode = Column(String(50), unique=True, nullable=False, index=True)
+    name = Column(String(500), nullable=False)
+    brand = Column(String(200), nullable=True)
+    category = Column(String(100), nullable=True)
+    image = Column(String(1024), nullable=True)
+    source = Column(String(50), nullable=True, comment='数据来源: local/openfoodfacts/upcitemdb/user')
+    
+    # 查询统计
+    query_count = Column(Integer, default=0, nullable=False, comment='查询次数')
+    last_queried_at = Column(DateTime(timezone=True), nullable=True, comment='最后查询时间')
+
