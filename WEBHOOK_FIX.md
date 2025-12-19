@@ -55,6 +55,19 @@ if webhook_secret:
         # 验证失败...
 ```
 
+### 修复2：部署脚本路径问题
+
+```python
+# ✅ 使用完整路径执行 bash
+result = subprocess.run(
+    ["/bin/bash", str(deploy_script)],  # 使用 /bin/bash 而不是 bash
+    cwd=str(project_root),
+    capture_output=True,
+    text=True,
+    timeout=300
+)
+```
+
 ### 修复原理
 
 1. **统一数据源**：只读取一次请求体
@@ -223,6 +236,15 @@ We couldn't deliver this payload: Connection error
 
 **症状**：Webhook 成功，但代码未更新
 
+**常见错误**：
+```
+FileNotFoundError: [Errno 2] No such file or directory: 'bash'
+```
+
+**原因**：Python subprocess 找不到 bash 命令的路径
+
+**解决**：已修复为使用 `/bin/bash` 完整路径
+
 **检查**：
 
 ```bash
@@ -235,6 +257,10 @@ ls -l auto_deploy.sh
 
 # 3. 手动测试部署脚本
 bash auto_deploy.sh
+
+# 4. 检查 bash 位置
+which bash
+# 应该返回: /bin/bash
 ```
 
 ---

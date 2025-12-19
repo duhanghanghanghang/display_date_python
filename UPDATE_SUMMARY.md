@@ -121,7 +121,8 @@ verify_signature(payload_body, signature, secret)
 
 #### 相关文档
 
-- `WEBHOOK_FIX.md` - 完整的修复说明和故障排查指南
+- `WEBHOOK_FIX.md` - Webhook 完整修复指南
+- `DEPLOYMENT_ERROR_FIX.md` - 部署错误修复说明（新增）
 
 ---
 

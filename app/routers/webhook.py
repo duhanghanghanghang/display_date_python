@@ -66,8 +66,9 @@ async def run_deployment():
             return
         
         # 执行部署脚本
+        # 使用 /bin/bash 完整路径，避免环境变量问题
         result = subprocess.run(
-            ["bash", str(deploy_script)],
+            ["/bin/bash", str(deploy_script)],
             cwd=str(project_root),
             capture_output=True,
             text=True,

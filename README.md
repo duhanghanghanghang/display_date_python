@@ -379,6 +379,7 @@ bash auto_deploy.sh
 #### 部署运维
 - 🔧 [WEBHOOK_SETUP.md](WEBHOOK_SETUP.md) - Webhook首次配置
 - 🛠️ [WEBHOOK_FIX.md](WEBHOOK_FIX.md) - **Webhook故障修复**
+- 🐛 [DEPLOYMENT_ERROR_FIX.md](DEPLOYMENT_ERROR_FIX.md) - 部署错误修复
 
 #### 在线文档
 - 📄 API文档: http://your-server:8000/docs
