@@ -3,8 +3,9 @@ from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+from fastapi.staticfiles import StaticFiles
 from .database import Base, engine, SessionLocal
-from .routers import auth, items, teams, notify, webhook
+from .routers import auth, items, teams, notify, webhook, upload, barcode
 from .notifier import notifier_loop
 from .logger import logger, log_manager
 from .middleware import LoggingMiddleware
@@ -24,11 +25,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 挂载静态文件目录（用于图片访问）
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
 app.include_router(auth.router)
 app.include_router(items.router)
 app.include_router(teams.router)
 app.include_router(notify.router)
 app.include_router(webhook.router)
+app.include_router(upload.router)
+app.include_router(barcode.router)
 
 
 @app.get("/", response_class=PlainTextResponse)

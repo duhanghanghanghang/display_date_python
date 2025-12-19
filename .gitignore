@@ -21,6 +21,9 @@ logs/
 alembic/__pycache__/
 alembic/versions/__pycache__/
 
+# Uploads
+uploads/
+
 # Database
 *.db
 *.sqlite

@@ -364,26 +364,26 @@ bash auto_deploy.sh
 
 ### 📚 完整文档列表
 
-#### 入门文档
+#### 🔥 立即查看（最重要）
 - 📖 [README.md](README.md) - 项目总览（你正在阅读）
-- 🚀 [QUICK_START.md](QUICK_START.md) - 快速开始指南
-- 📋 [UPDATE_SUMMARY.md](UPDATE_SUMMARY.md) - 最新更新说明
+- 🚀 [README_DEPLOYMENT.md](README_DEPLOYMENT.md) - **立即部署指南**
+- 📋 [FINAL_SUMMARY.md](FINAL_SUMMARY.md) - **完整功能总结**
+- 🛠️ [QUICK_FIX_COMMANDS.md](QUICK_FIX_COMMANDS.md) - **快速修复命令**
 
-#### API开发
-- 📊 [API_RESPONSE_FORMAT.md](API_RESPONSE_FORMAT.md) - **API响应格式规范**
-- 📱 [小程序端集成示例.md](小程序端集成示例.md) - 小程序端代码示例
+#### 开发实施
+- 📱 [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md) - **小程序实施指南**
+- 🎨 [MINIPROGRAM_IMPROVEMENTS.md](MINIPROGRAM_IMPROVEMENTS.md) - 小程序优化方案
+- 📊 [API_RESPONSE_FORMAT.md](API_RESPONSE_FORMAT.md) - API响应格式规范
+- 📱 [小程序端集成示例.md](小程序端集成示例.md) - 小程序集成示例
 
-#### 数据库
-- 🗃️ [DATABASE_MIGRATION.md](DATABASE_MIGRATION.md) - 数据库迁移指南（Alembic）
-
-#### 部署运维
-- 🔧 [WEBHOOK_SETUP.md](WEBHOOK_SETUP.md) - Webhook首次配置
-- 🛠️ [WEBHOOK_FIX.md](WEBHOOK_FIX.md) - **Webhook故障修复**
-- 🐛 [DEPLOYMENT_ERROR_FIX.md](DEPLOYMENT_ERROR_FIX.md) - 部署错误修复
+#### 运维文档
+- 🔧 [WEBHOOK_SETUP.md](WEBHOOK_SETUP.md) - Webhook配置指南
+- 🛠️ [WEBHOOK_FIX.md](WEBHOOK_FIX.md) - Webhook故障修复
+- 🗃️ [DATABASE_MIGRATION.md](DATABASE_MIGRATION.md) - 数据库迁移指南
 
 #### 在线文档
-- 📄 API文档: http://your-server:8000/docs
-- 📄 ReDoc: http://your-server:8000/redoc
+- 📄 API文档: http://your-server:8000/docs - Swagger UI
+- 📄 ReDoc: http://your-server:8000/redoc - ReDoc UI
 
 ---
 
