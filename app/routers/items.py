@@ -216,11 +216,27 @@ def update_item(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
 
     ensure_item_permission(db, item, openid)
-    update_data = payload.model_dump(exclude_unset=True, by_alias=True)
+    
+    # 使用 exclude_unset=True 只更新提交的字段
+    # 不使用 by_alias，因为数据库字段名是 product_image 而不是 productImage
+    update_data = payload.model_dump(exclude_unset=True)
+    
+    # 字段名映射：前端别名 -> 数据库字段名
+    field_mapping = {
+        'teamId': 'team_id',
+        'productImage': 'product_image',
+        'expireDate': 'expire_date'
+    }
+    
     for field, value in update_data.items():
-        if field == "teamId":
+        # 跳过 team_id（由前端通过 teamId 传递，但不应更新到 item）
+        if field == 'team_id':
             continue
-        setattr(item, field, value)
+        # 使用映射后的字段名
+        db_field = field_mapping.get(field, field)
+        if hasattr(item, db_field):
+            setattr(item, db_field, value)
+    
     item.updated_at = datetime.now(timezone.utc)
 
     db.commit()
