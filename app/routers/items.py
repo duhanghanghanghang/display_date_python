@@ -172,11 +172,13 @@ def create_item(
     )
 
     if existing:
-        update_data = payload.model_dump(exclude_unset=True, by_alias=True)
+        # 恢复已删除的记录，不使用 by_alias 以确保字段名匹配数据库
+        update_data = payload.model_dump(exclude_unset=True)
         for field, value in update_data.items():
-            if field == "teamId":
+            if field == "team_id":
                 continue
-            setattr(existing, field, value)
+            if hasattr(existing, field):
+                setattr(existing, field, value)
         existing.deleted = False
         existing.deleted_at = None
         existing.deleted_by = None
