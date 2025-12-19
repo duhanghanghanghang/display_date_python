@@ -22,7 +22,7 @@ class ItemBase(BaseModel):
     expire_date: Optional[str] = None
     note: Optional[str] = None
     barcode: Optional[str] = None
-    product_image: Optional[str] = None
+    product_image: Optional[str] = Field(default=None, alias="productImage")
     quantity: Optional[int] = 1
     team_id: Optional[str] = Field(default=None, alias="teamId")
     model_config = ConfigDict(populate_by_name=True)
