@@ -3,6 +3,7 @@
 - 请求日志记录
 - 错误日志记录
 - 请求耗时统计
+- 统一异常处理
 """
 import time
 import traceback
@@ -10,6 +11,7 @@ from fastapi import Request, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from .logger import logger
+from .response import ResponseCode, ResponseMessage
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):
@@ -58,11 +60,14 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 f"堆栈跟踪:\n{traceback.format_exc()}"
             )
             
-            # 返回错误响应
+            # 返回统一格式的错误响应
             return JSONResponse(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 content={
-                    "detail": "Internal server error",
-                    "message": str(exc) if logger.level == 10 else "An error occurred"
+                    "code": ResponseCode.INTERNAL_ERROR,
+                    "message": ResponseMessage.INTERNAL_ERROR,
+                    "data": {
+                        "detail": str(exc) if logger.level == 10 else None
+                    }
                 }
             )

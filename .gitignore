@@ -1,13 +1,17 @@
 # Virtual environment
 .venv/
+venv/
 
 # Local environment overrides
 .env
 .envJ
+.env.local
 
 # Python cache
 __pycache__/
 *.py[cod]
+*$py.class
+*.so
 
 # Logs
 logs/
@@ -16,3 +20,28 @@ logs/
 # Alembic
 alembic/__pycache__/
 alembic/versions/__pycache__/
+
+# Database
+*.db
+*.sqlite
+*.sql
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Backup
+*.bak
+backup_*.sql

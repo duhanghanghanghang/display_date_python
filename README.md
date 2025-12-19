@@ -21,6 +21,8 @@
 - 🌐 CORS 跨域支持
 - 📝 完整的日志系统（按天分割、自动清理、大小控制）
 - 🚀 GitHub Webhook 自动部署
+- 📊 统一API响应格式（标准化错误码和消息）
+- 🗃️ 数据库迁移管理（Alembic）
 
 ## 快速开始
 
@@ -357,6 +359,32 @@ bash auto_deploy.sh
 3. **依赖安装失败**
    - 确保使用 Python 3.8+
    - 尝试升级 pip: `pip install --upgrade pip`
+
+## 相关文档
+
+### 📚 完整文档列表
+
+#### 入门文档
+- 📖 [README.md](README.md) - 项目总览（你正在阅读）
+- 🚀 [QUICK_START.md](QUICK_START.md) - 快速开始指南
+- 📋 [UPDATE_SUMMARY.md](UPDATE_SUMMARY.md) - 最新更新说明
+
+#### API开发
+- 📊 [API_RESPONSE_FORMAT.md](API_RESPONSE_FORMAT.md) - **API响应格式规范**
+- 📱 [小程序端集成示例.md](小程序端集成示例.md) - 小程序端代码示例
+
+#### 数据库
+- 🗃️ [DATABASE_MIGRATION.md](DATABASE_MIGRATION.md) - 数据库迁移指南（Alembic）
+
+#### 部署运维
+- 🔧 [WEBHOOK_SETUP.md](WEBHOOK_SETUP.md) - Webhook首次配置
+- 🛠️ [WEBHOOK_FIX.md](WEBHOOK_FIX.md) - **Webhook故障修复**
+
+#### 在线文档
+- 📄 API文档: http://your-server:8000/docs
+- 📄 ReDoc: http://your-server:8000/redoc
+
+---
 
 ## 许可证
 

@@ -104,8 +104,19 @@ async def github_webhook(
     
     当代码推送到 GitHub 时，自动拉取并部署最新代码
     """
-    # 读取请求体
+    # 读取请求体（只能读取一次）
     payload_body = await request.body()
+    
+    # 先解析 JSON（因为后面还需要用）
+    try:
+        import json
+        payload = json.loads(payload_body.decode('utf-8'))
+    except Exception as e:
+        logger.error(f"解析 webhook payload 失败: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid JSON payload"
+        )
     
     # 验证签名（如果配置了密钥）
     webhook_secret = getattr(settings, 'github_webhook_secret', None)
@@ -119,16 +130,6 @@ async def github_webhook(
         logger.info("GitHub webhook 签名验证通过")
     else:
         logger.warning("未配置 webhook 密钥，跳过签名验证")
-    
-    # 解析 JSON
-    try:
-        payload = await request.json()
-    except Exception as e:
-        logger.error(f"解析 webhook payload 失败: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid JSON payload"
-        )
     
     # 记录事件
     event_type = x_github_event or "unknown"
