@@ -1,12 +1,8 @@
 # 🚨 立即部署指南
 
-## 问题分析
+## ✅ 使用 SQL 管理数据库
 
-Alembic迁移冲突：多个head版本存在。
-
-## ✅ 解决方案（直接创建表）
-
-已删除有问题的迁移文件，改用SQL脚本直接创建表。
+本项目已移除数据库迁移框架，改用 SQL 脚本直接管理数据库结构。
 
 ---
 
@@ -24,7 +20,7 @@ git pull origin master
 # 2. 激活虚拟环境
 source venv/bin/activate
 
-# 3. 直接用SQL创建表（跳过Alembic）
+# 3. 使用 SQL 创建商品缓存表
 mysql -u appuser -p"$(grep DATABASE_PASSWORD .env | cut -d'=' -f2)" display_date << 'EOF'
 CREATE TABLE IF NOT EXISTS products (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -243,8 +239,8 @@ systemctl restart display_date
 
 ## 💡 为什么这样做？
 
-1. **跳过Alembic**：直接用SQL创建表，避免版本冲突
+1. **直接使用SQL**：清晰明了，完全可控
 2. **IF NOT EXISTS**：如果表已存在不会报错
-3. **手动创建**：完全可控，不依赖迁移历史
+3. **无依赖**：不依赖任何迁移框架
 
 这是最稳妥的方案！

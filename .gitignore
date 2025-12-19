@@ -17,9 +17,9 @@ __pycache__/
 logs/
 *.log*
 
-# Alembic
-alembic/__pycache__/
-alembic/versions/__pycache__/
+# 数据库相关
+*.sql.backup
+alembic/
 
 # Uploads
 uploads/

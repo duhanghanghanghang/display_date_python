@@ -45,12 +45,12 @@
 **已删除**：
 - `SUMMARY.md` - 内容与其他文档重复
 - `DATABASE_MIGRATION_SUMMARY.md` - 与主文档重复
+- `DATABASE_MIGRATION.md` - 已移除数据库迁移框架
 - `test_features.py` - 临时测试脚本
 
-**当前文档**（精简到8个核心文档）：
+**当前文档**（精简到核心文档）：
 - ✅ `README.md` - 项目总览
 - ✅ `API_RESPONSE_FORMAT.md` - API格式规范
-- ✅ `DATABASE_MIGRATION.md` - 数据库迁移
 - ✅ `WEBHOOK_SETUP.md` - Webhook配置
 - ✅ `WEBHOOK_FIX.md` - Webhook修复
 - ✅ `QUICK_START.md` - 快速开始
@@ -381,8 +381,7 @@ ssh user@server "tail -50 /srv/app/display_date_python/logs/display_date.log"
 
 4. **`API_RESPONSE_FORMAT.md`** - API响应格式规范
 5. **`WEBHOOK_FIX.md`** - Webhook故障排查
-6. **`DATABASE_MIGRATION.md`** - 数据库迁移指南
-7. **`UPDATE_SUMMARY.md`** - 本次更新总结
+6. **`UPDATE_SUMMARY.md`** - 本次更新总结
 
 ### 入门文档（⭐）
 
@@ -459,7 +458,7 @@ git push
 1. **Webhook不工作** → 查看 `WEBHOOK_FIX.md`
 2. **图片上传失败** → 查看服务器日志
 3. **条形码识别不准** → 尝试商业API（见 MINIPROGRAM_IMPROVEMENTS.md）
-4. **数据库报错** → 执行 `alembic upgrade head`
+4. **数据库报错** → 使用 SQL 脚本手动修复数据库
 
 ### 查看日志
 

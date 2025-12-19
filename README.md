@@ -22,7 +22,6 @@
 - 📝 完整的日志系统（按天分割、自动清理、大小控制）
 - 🚀 GitHub Webhook 自动部署
 - 📊 统一API响应格式（标准化错误码和消息）
-- 🗃️ 数据库迁移管理（Alembic）
 
 ## 快速开始
 
@@ -334,9 +333,9 @@ bash auto_deploy.sh
 
 应用启动时会自动加载 `.env` 文件中的环境变量。也可以通过系统环境变量设置，优先级高于 `.env` 文件。
 
-### 数据库迁移
+### 数据库管理
 
-当前使用 SQLAlchemy 的 `Base.metadata.create_all()` 自动创建表结构。生产环境建议使用 Alembic 进行数据库迁移管理。
+当前使用 SQLAlchemy 的 `Base.metadata.create_all()` 自动创建表结构。如需修改数据库结构，请使用 SQL 脚本手动执行。
 
 ### 日志管理
 
@@ -379,7 +378,6 @@ bash auto_deploy.sh
 #### 运维文档
 - 🔧 [WEBHOOK_SETUP.md](WEBHOOK_SETUP.md) - Webhook配置指南
 - 🛠️ [WEBHOOK_FIX.md](WEBHOOK_FIX.md) - Webhook故障修复
-- 🗃️ [DATABASE_MIGRATION.md](DATABASE_MIGRATION.md) - 数据库迁移指南
 
 #### 在线文档
 - 📄 API文档: http://your-server:8000/docs - Swagger UI

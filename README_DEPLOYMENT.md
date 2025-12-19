@@ -139,14 +139,11 @@ curl "https://dhlhy.cn/barcode/query?code=6901028075916"
 
 ### 运维文档
 
-8. **`DATABASE_MIGRATION.md`** ⭐
-   - 数据库迁移指南
-
-9. **`WEBHOOK_SETUP.md`** ⭐
+8. **`WEBHOOK_SETUP.md`** ⭐
    - Webhook初次配置
 
-10. **`QUICK_START.md`** ⭐
-    - 快速开始指南
+9. **`QUICK_START.md`** ⭐
+   - 快速开始指南
 
 ---
 

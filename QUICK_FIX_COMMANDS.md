@@ -179,8 +179,8 @@ source venv/bin/activate
 # 检查数据库状态
 python3 check_db_schema.py
 
-# 执行数据库迁移
-alembic upgrade head
+# 使用 SQL 脚本修复数据库
+# mysql -u用户 -p数据库 < fix.sql
 
 # 重启服务
 sudo systemctl restart display-date
@@ -215,7 +215,7 @@ grep "2025-12-19 12:" logs/display_date.log
 
 1. **Webhook问题**：查看 [WEBHOOK_FIX.md](WEBHOOK_FIX.md)
 2. **API格式问题**：查看 [API_RESPONSE_FORMAT.md](API_RESPONSE_FORMAT.md)
-3. **数据库问题**：查看 [DATABASE_MIGRATION.md](DATABASE_MIGRATION.md)
+3. **数据库问题**：使用 SQL 脚本手动修复
 
 ### 查看完整日志
 

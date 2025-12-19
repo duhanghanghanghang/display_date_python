@@ -96,9 +96,8 @@ def check_table_columns():
         for sql in fix_sql:
             print(f"  {sql}")
         print()
-        print("运行方法:")
-        print("  方法1: alembic upgrade head")
-        print("  方法2: 手动连接数据库执行上述SQL")
+        print("修复方法:")
+        print("  手动连接数据库执行上述 SQL 语句")
     else:
         print("✅ 数据库表结构完全正确，无需修复")
 

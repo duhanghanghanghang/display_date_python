@@ -23,7 +23,7 @@ echo -e "======================================${NC}"
 echo ""
 
 # 检查是否在项目根目录
-if [ ! -f "alembic.ini" ]; then
+if [ ! -f ".env" ]; then
     echo -e "${RED}错误：请在项目根目录运行此脚本${NC}"
     echo "当前目录: $(pwd)"
     exit 1
@@ -39,13 +39,6 @@ fi
 # 激活虚拟环境
 echo -e "${YELLOW}激活虚拟环境...${NC}"
 source venv/bin/activate
-
-# 检查 Alembic 是否安装
-if ! python3 -c "import alembic" 2>/dev/null; then
-    echo -e "${YELLOW}安装 Alembic...${NC}"
-    pip install alembic==1.13.1 -q
-    echo -e "${GREEN}✓ Alembic 安装完成${NC}"
-fi
 
 # 备份数据库（可选）
 echo ""
@@ -73,38 +66,12 @@ echo ""
 echo -e "${YELLOW}检查当前数据库状态...${NC}"
 python3 check_db_schema.py
 
-# 询问是否执行迁移
+# 提示手动修复
 echo ""
-read -p "是否执行数据库迁移？[Y/n] " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Nn]$ ]]; then
-    echo -e "${YELLOW}已取消${NC}"
-    exit 0
-fi
-
-# 执行数据库迁移
+echo -e "${YELLOW}请使用 SQL 脚本手动修复数据库${NC}"
+echo -e "示例: mysql -u用户 -p数据库 < fix.sql"
 echo ""
-echo -e "${BLUE}======================================"
-echo "执行数据库迁移"
-echo -e "======================================${NC}"
-echo ""
-
-if alembic upgrade head; then
-    echo ""
-    echo -e "${GREEN}✓ 数据库迁移成功${NC}"
-else
-    echo ""
-    echo -e "${RED}✗ 数据库迁移失败${NC}"
-    exit 1
-fi
-
-# 验证修复结果
-echo ""
-echo -e "${BLUE}======================================"
-echo "验证修复结果"
-echo -e "======================================${NC}"
-echo ""
-
+echo -e "${BLUE}验证数据库状态...${NC}"
 python3 check_db_schema.py
 
 # 询问是否重启服务
