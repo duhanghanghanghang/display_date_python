@@ -2,9 +2,13 @@
 .venv/
 
 # Local environment overrides
+.env
 .envJ
 
 # Python cache
 __pycache__/
 *.py[cod]
 
+# Logs
+logs/
+*.log*

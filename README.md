@@ -19,6 +19,8 @@
 - 🔗 团队邀请码机制
 - 📢 微信订阅消息通知
 - 🌐 CORS 跨域支持
+- 📝 完整的日志系统（按天分割、自动清理、大小控制）
+- 🚀 GitHub Webhook 自动部署
 
 ## 快速开始
 
@@ -67,6 +69,9 @@
    WECHAT_APPID=wx5ad3bf879ec671a6
    WECHAT_SECRET=265a81a1fa7cae283ec3124d9ac05940
    WECHAT_TEMPLATE_ID=MrQmebYU1N-8tGI-9Ux1XxibqBsYuN-ncDMFkHFcdlI
+   
+   # GitHub Webhook 密钥（可选，用于自动部署）
+   GITHUB_WEBHOOK_SECRET=your-webhook-secret-here
    
    # 服务器配置（可选）
    HOST=0.0.0.0
@@ -165,6 +170,16 @@
 - `POST /notify/subscribe` - 订阅消息通知
   - 需要认证
 
+### Webhook（自动部署）
+
+- `POST /webhook/github` - GitHub Webhook 端点
+  - 接收 GitHub 推送通知并自动部署
+  - 需要配置 webhook 密钥
+  - 详见：[WEBHOOK_SETUP.md](WEBHOOK_SETUP.md)
+
+- `GET /webhook/test` - 测试 Webhook 端点
+  - 返回: `{"message": "Webhook endpoint is working"}`
+
 所有需要认证的接口都需要在请求头中包含 openid，支持两种方式：
 ```
 X-OpenId: <your_openid>
@@ -192,16 +207,111 @@ display_date_python/
 │   ├── env_loader.py        # 环境变量加载
 │   ├── notifier.py          # 消息通知服务
 │   ├── wechat.py            # 微信 API 集成
+│   ├── logger.py            # 日志管理系统
+│   ├── middleware.py        # 中间件（日志记录、错误处理）
 │   └── routers/             # API 路由
 │       ├── auth.py          # 认证路由
 │       ├── items.py         # 物品管理路由
 │       ├── teams.py         # 团队管理路由
-│       └── notify.py        # 通知路由
+│       ├── notify.py        # 通知路由
+│       └── webhook.py       # Webhook 路由（自动部署）
+├── logs/                    # 日志文件夹（自动创建）
+│   └── display_date.log    # 应用日志
 ├── docker-compose.yml       # Docker Compose 配置
 ├── env.example              # 环境变量示例
 ├── requirements.txt         # Python 依赖
 ├── run.py                   # 应用启动脚本
+├── auto_deploy.sh           # 自动部署脚本
+├── clean_logs.py            # 日志清理工具
+├── WEBHOOK_SETUP.md         # Webhook 配置指南
 └── README.md               # 项目文档
+```
+
+## 日志系统
+
+### 功能特性
+
+- ✅ **单独的日志文件夹**：所有日志存储在 `logs/` 目录
+- ✅ **按天分割**：每天午夜自动创建新的日志文件
+- ✅ **自动保留一周**：只保留最近 7 天的日志
+- ✅ **大小控制**：日志总大小超过 2GB 时自动清理最旧的日志
+- ✅ **请求日志**：记录所有 API 请求、响应状态码和耗时
+- ✅ **错误日志**：记录异常和错误堆栈信息
+- ✅ **自动清理**：每次应用启动时自动执行日志清理
+
+### 手动清理日志
+
+如果需要手动清理日志：
+
+```bash
+python3 clean_logs.py
+```
+
+### 定时清理（Cron）
+
+可以设置 cron 任务定期清理日志：
+
+```bash
+# 编辑 crontab
+crontab -e
+
+# 添加以下行（每天凌晨 2 点清理）
+0 2 * * * cd /path/to/display_date_python && /path/to/python3 clean_logs.py
+```
+
+### 查看日志
+
+```bash
+# 实时查看日志
+tail -f logs/display_date.log
+
+# 查看最近 100 行
+tail -n 100 logs/display_date.log
+
+# 搜索错误日志
+grep ERROR logs/display_date.log
+```
+
+## 自动部署
+
+### 配置步骤
+
+1. **配置 webhook 密钥**：
+   ```bash
+   # 生成随机密钥
+   openssl rand -hex 32
+   # 将密钥添加到 .env 文件
+   echo "GITHUB_WEBHOOK_SECRET=your-secret-key" >> .env
+   ```
+
+2. **在 GitHub 仓库中配置 Webhook**：
+   - 进入仓库 Settings > Webhooks > Add webhook
+   - Payload URL: `https://your-domain.com/webhook/github`
+   - Content type: `application/json`
+   - Secret: 填入上面生成的密钥
+   - 选择 "Just the push event"
+   - 勾选 "Active"
+
+3. **重启应用**：
+   ```bash
+   sudo systemctl restart display-date
+   ```
+
+详细配置步骤请查看：[WEBHOOK_SETUP.md](WEBHOOK_SETUP.md)
+
+### 工作流程
+
+```
+推送代码到 GitHub → GitHub 发送 Webhook → 服务器接收并验证
+→ 后台执行部署脚本 → 拉取最新代码 → 更新依赖 → 清理日志 → 重启服务
+```
+
+### 手动部署
+
+如果需要手动部署：
+
+```bash
+bash auto_deploy.sh
 ```
 
 ## 数据库
@@ -226,9 +336,12 @@ display_date_python/
 
 当前使用 SQLAlchemy 的 `Base.metadata.create_all()` 自动创建表结构。生产环境建议使用 Alembic 进行数据库迁移管理。
 
-### 日志
+### 日志管理
 
-应用日志会输出到控制台。生产环境建议配置日志文件输出。
+- 日志文件位于 `logs/` 目录
+- 应用启动时自动清理过期日志
+- 可以手动运行 `python3 clean_logs.py` 清理日志
+- 建议配置 cron 定期清理
 
 ## 常见问题
 

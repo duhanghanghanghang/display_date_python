@@ -21,6 +21,8 @@ class Settings:
         self.wechat_appid: str | None = os.getenv("WECHAT_APPID")
         self.wechat_secret: str | None = os.getenv("WECHAT_SECRET")
         self.wechat_template_id: str | None = os.getenv("WECHAT_TEMPLATE_ID")
+        # GitHub Webhook 配置
+        self.github_webhook_secret: str | None = os.getenv("GITHUB_WEBHOOK_SECRET")
 
 
 settings = Settings()
