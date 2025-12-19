@@ -1,0 +1,4 @@
+# 确保缓存文件不被跟踪
+__pycache__/ export-ignore
+*.pyc export-ignore
+*.pyo export-ignore
