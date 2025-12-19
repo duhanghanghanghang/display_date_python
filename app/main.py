@@ -33,12 +33,10 @@ app.include_router(webhook.router)
 
 @app.get("/", response_class=PlainTextResponse)
 def read_root() -> str:
-    return """Display Date API
-版本: 0.1.0
-状态: 运行中
+    return """番茄我爱你
 
 备案信息：渝ICP备2025076154号
-备案查询：https://beian.miit.gov.cn"""
+"""
 
 
 @app.on_event("startup")
