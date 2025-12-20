@@ -114,14 +114,16 @@ async def upload_product_image(
         with open(file_path, 'wb') as f:
             f.write(compressed_data)
         
-        # 生成访问URL（相对路径）
+        # 生成访问URL（完整的HTTPS路径）
         relative_path = f"/uploads/products/{date_dir}/{file_name}"
+        # 构建完整URL（前端可以直接使用）
+        full_url = f"https://dhlhy.cn{relative_path}"
         
         logger.info(f"图片上传成功: {relative_path}, 用户: {openid}, 原始大小: {file_size/1024:.1f}KB, 压缩后: {len(compressed_data)/1024:.1f}KB")
         
         return success_response(
             data={
-                "url": relative_path,
+                "url": full_url,  # 返回完整URL
                 "filename": file_name,
                 "size": len(compressed_data)
             },
