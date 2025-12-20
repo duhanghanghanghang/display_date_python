@@ -178,7 +178,7 @@ def create_item(
             if field == "team_id":
                 continue
             if hasattr(existing, field):
-                setattr(existing, field, value)
+            setattr(existing, field, value)
         existing.deleted = False
         existing.deleted_at = None
         existing.deleted_by = None
