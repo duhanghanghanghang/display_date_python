@@ -1,5 +1,6 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import List, Optional
+from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -126,4 +127,117 @@ class SubscribeSendRequest(BaseModel):
     lang: Optional[str] = "zh_CN"
     openid: Optional[str] = None  # 如不传则使用当前登录态的 openid
     model_config = ConfigDict(populate_by_name=True)
+
+
+# ============ Wardrobe Category schemas ============
+class WardrobeCategoryBase(BaseModel):
+    name: str
+    sort_order: Optional[int] = Field(default=0, alias="sortOrder")
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class WardrobeCategoryCreate(WardrobeCategoryBase):
+    pass
+
+
+class WardrobeCategoryUpdate(BaseModel):
+    name: Optional[str] = None
+    sort_order: Optional[int] = Field(default=None, alias="sortOrder")
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class WardrobeCategoryOut(WardrobeCategoryBase):
+    id: str
+    owner_openid: str = Field(alias="ownerOpenid")
+    created_at: datetime = Field(alias="createdAt")
+    updated_at: datetime = Field(alias="updatedAt")
+    count: Optional[int] = 0  # 统计该分类下的衣服数量
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+
+class WardrobeCategoriesResponse(BaseModel):
+    categories: List[WardrobeCategoryOut]
+
+
+# ============ Wardrobe Item schemas ============
+class WardrobeItemBase(BaseModel):
+    category_id: str = Field(alias="categoryId")
+    name: str
+    color: Optional[str] = None
+    size: Optional[str] = None
+    season: Optional[str] = None
+    brand: Optional[str] = None
+    price: Optional[Decimal] = None
+    purchase_date: Optional[date] = Field(default=None, alias="purchaseDate")
+    image_url: Optional[str] = Field(default=None, alias="imageUrl")
+    note: Optional[str] = None
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class WardrobeItemCreate(WardrobeItemBase):
+    pass
+
+
+class WardrobeItemUpdate(BaseModel):
+    category_id: Optional[str] = Field(default=None, alias="categoryId")
+    name: Optional[str] = None
+    color: Optional[str] = None
+    size: Optional[str] = None
+    season: Optional[str] = None
+    brand: Optional[str] = None
+    price: Optional[Decimal] = None
+    purchase_date: Optional[date] = Field(default=None, alias="purchaseDate")
+    image_url: Optional[str] = Field(default=None, alias="imageUrl")
+    note: Optional[str] = None
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class WardrobeItemOut(WardrobeItemBase):
+    id: str
+    owner_openid: str = Field(alias="ownerOpenid")
+    deleted: bool
+    deleted_at: Optional[datetime] = Field(default=None, alias="deletedAt")
+    created_at: datetime = Field(alias="createdAt")
+    updated_at: datetime = Field(alias="updatedAt")
+    category_name: Optional[str] = Field(default=None, alias="categoryName")  # 分类名称
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+
+class WardrobeItemsResponse(BaseModel):
+    items: List[WardrobeItemOut]
+
+
+# ============ Wardrobe Outfit schemas ============
+class WardrobeOutfitBase(BaseModel):
+    name: str
+    items: dict  # {"top": "item_id", "bottom": "item_id", ...}
+    occasion: Optional[str] = None
+    season: Optional[str] = None
+    image_url: Optional[str] = Field(default=None, alias="imageUrl")
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class WardrobeOutfitCreate(WardrobeOutfitBase):
+    pass
+
+
+class WardrobeOutfitUpdate(BaseModel):
+    name: Optional[str] = None
+    items: Optional[dict] = None
+    occasion: Optional[str] = None
+    season: Optional[str] = None
+    image_url: Optional[str] = Field(default=None, alias="imageUrl")
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class WardrobeOutfitOut(WardrobeOutfitBase):
+    id: str
+    owner_openid: str = Field(alias="ownerOpenid")
+    created_at: datetime = Field(alias="createdAt")
+    updated_at: datetime = Field(alias="updatedAt")
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+
+class WardrobeOutfitsResponse(BaseModel):
+    outfits: List[WardrobeOutfitOut]
 

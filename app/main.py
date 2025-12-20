@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi.staticfiles import StaticFiles
 from .database import Base, engine, SessionLocal
-from .routers import auth, items, teams, notify, webhook, upload, barcode
+from .routers import auth, items, teams, notify, webhook, upload, barcode, wardrobe
 from .notifier import notifier_loop
 from .logger import logger, log_manager
 from .middleware import LoggingMiddleware
@@ -35,6 +35,7 @@ app.include_router(notify.router)
 app.include_router(webhook.router)
 app.include_router(upload.router)
 app.include_router(barcode.router)
+app.include_router(wardrobe.router)
 
 
 @app.get("/", response_class=PlainTextResponse)

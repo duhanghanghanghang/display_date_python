@@ -5,9 +5,12 @@ from sqlalchemy import (
     Boolean,
     Column,
     DateTime,
+    Date,
+    Numeric,
     ForeignKey,
     Integer,
     String,
+    Text,
     func,
 )
 from sqlalchemy.dialects.mysql import JSON
@@ -88,4 +91,52 @@ class Product(TimestampMixin, Base):
     # 查询统计
     query_count = Column(Integer, default=0, nullable=False, comment='查询次数')
     last_queried_at = Column(DateTime(timezone=True), nullable=True, comment='最后查询时间')
+
+
+class WardrobeCategory(TimestampMixin, Base):
+    """衣柜分类/标签表"""
+    __tablename__ = "wardrobe_categories"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    owner_openid = Column(String(128), nullable=False, index=True)
+    name = Column(String(50), nullable=False, comment='标签名称')
+    sort_order = Column(Integer, default=0, comment='排序')
+    
+    items = relationship("WardrobeItem", back_populates="category", cascade="all, delete-orphan")
+
+
+class WardrobeItem(TimestampMixin, Base):
+    """衣柜物品表"""
+    __tablename__ = "wardrobe_items"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    owner_openid = Column(String(128), nullable=False, index=True)
+    category_id = Column(String(36), ForeignKey("wardrobe_categories.id"), nullable=False, index=True)
+    name = Column(String(100), nullable=False, comment='衣服名称')
+    color = Column(String(50), nullable=True, comment='颜色')
+    size = Column(String(20), nullable=True, comment='尺码')
+    season = Column(String(20), nullable=True, comment='季节')
+    brand = Column(String(100), nullable=True, comment='品牌')
+    price = Column(Numeric(10, 2), nullable=True, comment='价格')
+    purchase_date = Column(Date, nullable=True, comment='购买日期')
+    image_url = Column(String(1024), nullable=True, comment='衣服图片')
+    note = Column(Text, nullable=True, comment='备注')
+    
+    deleted = Column(Boolean, default=False, nullable=False)
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
+    
+    category = relationship("WardrobeCategory", back_populates="items")
+
+
+class WardrobeOutfit(TimestampMixin, Base):
+    """虚拟试衣搭配方案表"""
+    __tablename__ = "wardrobe_outfits"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    owner_openid = Column(String(128), nullable=False, index=True)
+    name = Column(String(100), nullable=False, comment='搭配名称')
+    items = Column(JSON, nullable=False, comment='衣服ID数组')
+    occasion = Column(String(50), nullable=True, comment='场合')
+    season = Column(String(20), nullable=True, comment='季节')
+    image_url = Column(String(1024), nullable=True, comment='搭配截图')
 
